@@ -1,6 +1,6 @@
 {
   "name": "omnibox-clear-history",
-  "description": "Omnibox Clear History",
+  "description": "Clear Omnibox Google search history suggestions",
   "author": "",
   "version": "1.0.0",
   "scripts": {
