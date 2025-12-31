@@ -1,8 +1,8 @@
 {
-  "update_url": "https://clients2.google.com/service/update2/crx",
+  "manifest_version": 3,
+  "homepage_url": "https://github.com/rlindner81/omnibox-clear-history",
   "name": "Omnibox Clear History",
   "description": "Omnibox Clear History - Clear Omnibox Google Search History Suggestions",
-  "manifest_version": 3,
   "version": "1.0",
   "permissions": ["history"],
   "action": {
