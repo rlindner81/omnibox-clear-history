@@ -1,3 +1,5 @@
 .idea/
 node_modules/
 _metadata/
+dist.crx
+dist.pem
