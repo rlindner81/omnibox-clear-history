@@ -1,0 +1,17 @@
+{
+  "name": "omnibox-clear-history",
+  "description": "Omnibox Clear History",
+  "author": "",
+  "version": "1.0.0",
+  "scripts": {
+    "lint": "npm run prettier",
+    "lint:fix": "npm run prettier:fix",
+    "prettier": "prettier \"**/*.{js,json,md,yml,yaml}\" . --check",
+    "prettier:fix": "npm run prettier -- --log-level error --write"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^3.7.4"
+  },
+  "keywords": []
+}

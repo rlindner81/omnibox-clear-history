@@ -1,0 +1,19 @@
+{
+  "update_url": "https://clients2.google.com/service/update2/crx",
+  "name": "Omnibox Clear History",
+  "description": "Omnibox Clear History - Clear Omnibox Google Search History Suggestions",
+  "manifest_version": 3,
+  "version": "1.0",
+  "permissions": ["history"],
+  "action": {
+    "default_icon": "assets/icon_24.png"
+  },
+  "background": {
+    "service_worker": "src/clear-history.js"
+  },
+  "icons": {
+    "16": "assets/icon_16.png",
+    "48": "assets/icon_48.png",
+    "128": "assets/icon_128.png"
+  }
+}
