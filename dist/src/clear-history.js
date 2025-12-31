@@ -11,15 +11,12 @@ const clearHistoryItem = async (item) => {
   return await chrome.history.deleteUrl({ url: item.url });
 };
 
-const clearHistoryItems = async (items) =>
-  await Promise.all(items.map(clearHistoryItem));
+const clearHistoryItems = async (items) => await Promise.all(items.map(clearHistoryItem));
 
 chrome.history.onVisited.addListener(clearHistoryItem);
 
 chrome.runtime.onInstalled.addListener(async () => {
-  const oneMonthAgo = new Date().getTime() - 30 * MILLIS_PER_DAY;
-  chrome.history.search(
-    { text: FILTER_URL_PREFIX, startTime: oneMonthAgo, maxResults: 5000 },
-    clearHistoryItems,
-  );
+  chrome.history.search({
+    text: FILTER_URL_PREFIX, startTime: Date.now() - 30 * MILLIS_PER_DAY, maxResults: 5000
+  }, clearHistoryItems,);
 });
