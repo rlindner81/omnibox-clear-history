@@ -1,8 +1,6 @@
 {
+  "private": true,
   "name": "omnibox-clear-history",
-  "description": "Clear Omnibox Google search history suggestions",
-  "author": "",
-  "version": "1.0.0",
   "scripts": {
     "lint": "npm run prettier",
     "lint:fix": "npm run prettier:fix",
