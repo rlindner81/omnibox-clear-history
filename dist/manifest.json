@@ -6,7 +6,7 @@
   "version": "1.0",
   "permissions": ["history"],
   "background": {
-    "service_worker": "src/clear-history.js"
+    "service_worker": "clear-history.js"
   },
   "icons": {
     "48": "icon_48.png",
