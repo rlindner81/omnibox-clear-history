@@ -17,9 +17,9 @@ const loadActiveDomains = async () => {
   }
 };
 
-const clearHistoryItem = (domains) => async (item) => {
+const clearHistoryItem = async (item) => {
   const urlDomain = item.url.match(/\w+\.\w+(?=[:\/]|$)/i)?.[0];
-  if (!domains.includes(urlDomain)) {
+  if (!activeDomains.includes(urlDomain)) {
     return;
   }
   console.log("clearing %s", item.url);
@@ -27,18 +27,16 @@ const clearHistoryItem = (domains) => async (item) => {
 };
 
 const clearCurrentHistory = async () => {
-  for (const domain of activeDomains) {
-    chrome.history.search(
-      {
-        text: "",
-        startTime: Date.now() - 14 * MILLIS_PER_DAY,
-        maxResults: 5000,
-      },
-      async (items) => {
-        await Promise.all(items.map(clearHistoryItem([domain])));
-      },
-    );
-  }
+  chrome.history.search(
+    {
+      text: "",
+      startTime: Date.now() - 14 * MILLIS_PER_DAY,
+      maxResults: 5000,
+    },
+    async (items) => {
+      await Promise.all(items.map(clearHistoryItem));
+    },
+  );
 };
 
 // Event Listeners
@@ -51,15 +49,17 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 });
 
 chrome.history.onVisited.addListener(async (item) => {
-  await clearHistoryItem(activeDomains)(item);
+  await clearHistoryItem(item);
 });
 
 chrome.runtime.onInstalled.addListener(async () => {
+  chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
   await loadActiveDomains();
   await clearCurrentHistory();
 });
 
 chrome.runtime.onStartup.addListener(async () => {
+  chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
   await loadActiveDomains();
   await clearCurrentHistory();
 });
