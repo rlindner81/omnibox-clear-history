@@ -1,10 +1,14 @@
 "use strict";
 
-const FILTER_URL_PREFIXES = ["https://www.google.", "https://www.youtube."];
+const FILTER_URL_PREFIXES = [
+  "https://www.google.",
+  "https://www.youtube.",
+  "https://www.markt.",
+];
 const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 
 const clearHistoryItem = (prefixes) => async (item) => {
-  if (!prefixes.some(prefix => item.url.startsWith(prefix))) {
+  if (!prefixes.some((prefix) => item.url.startsWith(prefix))) {
     return;
   }
   console.log("clearing %s", item.url);
