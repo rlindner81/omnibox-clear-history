@@ -1,6 +1,6 @@
 "use strict";
 
-const DEFAULT_DOMAINS = ["www.google.com"];
+const DEFAULT_DOMAINS = ["google.com"];
 
 const domainsTextarea = document.getElementById("domains");
 const saveButton = document.getElementById("save");

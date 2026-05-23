@@ -2,7 +2,7 @@
 "use strict";
 
 const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
-const DEFAULT_DOMAINS = ["www.google.com"];
+const DEFAULT_DOMAINS = ["google.com"];
 
 let activeDomains = [...DEFAULT_DOMAINS];
 
@@ -19,8 +19,9 @@ const loadActiveDomains = async () => {
 
 const clearHistoryItem = async (item) => {
   try {
-    const { hostname } = new URL(item.url);
-    if (!activeDomains.includes(hostname)) {
+    let { hostname } = new URL(item.url);
+    const target = hostname.replace(/^www\./, "");
+    if (!activeDomains.includes(target)) {
       return;
     }
     console.log("clearing %s", item.url);
@@ -44,7 +45,7 @@ const clearCurrentHistory = async () => {
 };
 
 const bootstrap = async () => {
-  chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
+  await chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
   await loadActiveDomains();
   await clearCurrentHistory();
 };
