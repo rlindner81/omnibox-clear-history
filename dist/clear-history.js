@@ -18,12 +18,16 @@ const loadActiveDomains = async () => {
 };
 
 const clearHistoryItem = async (item) => {
-  const urlDomain = item.url.match(/\w+\.\w+(?=[:\/]|$)/i)?.[0];
-  if (!activeDomains.includes(urlDomain)) {
-    return;
+  try {
+    const { hostname } = new URL(item.url);
+    if (!activeDomains.includes(hostname)) {
+      return;
+    }
+    console.log("clearing %s", item.url);
+    await chrome.history.deleteUrl({ url: item.url });
+  } catch (error) {
+    // NOTE: ignore invalid URLs
   }
-  console.log("clearing %s", item.url);
-  await chrome.history.deleteUrl({ url: item.url });
 };
 
 const clearCurrentHistory = async () => {
@@ -39,7 +43,15 @@ const clearCurrentHistory = async () => {
   );
 };
 
+const bootstrap = async () => {
+  chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
+  await loadActiveDomains();
+  await clearCurrentHistory();
+};
+
 // Event Listeners
+
+chrome.history.onVisited.addListener(clearHistoryItem);
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === "sync" && changes.domains) {
@@ -48,24 +60,12 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
-chrome.history.onVisited.addListener(async (item) => {
-  await clearHistoryItem(item);
-});
-
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "keepAlive") {
     console.log("Service worker kept alive at:", new Date().toISOString());
   }
 });
 
-chrome.runtime.onInstalled.addListener(async () => {
-  chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
-  await loadActiveDomains();
-  await clearCurrentHistory();
-});
+chrome.runtime.onInstalled.addListener(bootstrap);
 
-chrome.runtime.onStartup.addListener(async () => {
-  chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
-  await loadActiveDomains();
-  await clearCurrentHistory();
-});
+chrome.runtime.onStartup.addListener(bootstrap);
