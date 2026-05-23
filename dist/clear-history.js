@@ -25,8 +25,8 @@ const clearCurrentHistory = async () => {
   for (const domain of FILTER_URL_DOMAINS) {
     chrome.history.search(
       {
-        text: domain,
-        startTime: Date.now() - 30 * MILLIS_PER_DAY,
+        text: "",
+        startTime: Date.now() - 14 * MILLIS_PER_DAY,
         maxResults: 5000,
       },
       clearHistoryItems([domain]),
