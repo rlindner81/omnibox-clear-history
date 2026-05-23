@@ -1,14 +1,14 @@
 "use strict";
 
-const FILTER_URL_PREFIXES = [
-  "https://www.google.",
-  "https://www.youtube.",
-  "https://www.markt.",
+const FILTER_URL_DOMAINS = [
+  "google.com",
+  "youtube.com",
+  "markt.de",
 ];
 const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 
-const clearHistoryItem = (prefixes) => async (item) => {
-  if (!prefixes.some((prefix) => item.url.startsWith(prefix))) {
+const clearHistoryItem = (domains) => async (item) => {
+  if (!domains.some((domain) => item.url.contains(domain))) {
     return;
   }
   console.log("clearing %s", item.url);
@@ -20,18 +20,18 @@ const clearHistoryItems = (prefixes) => async (items) => {
 };
 
 const clearCurrentHistory = async () => {
-  for (const prefix of FILTER_URL_PREFIXES) {
+  for (const domain of FILTER_URL_DOMAINS) {
     chrome.history.search(
       {
-        text: prefix,
+        text: domain,
         startTime: Date.now() - 30 * MILLIS_PER_DAY,
         maxResults: 5000,
       },
-      clearHistoryItems([prefix]),
+      clearHistoryItems([domain]),
     );
   }
 };
 
-chrome.history.onVisited.addListener(clearHistoryItem(FILTER_URL_PREFIXES));
+chrome.history.onVisited.addListener(clearHistoryItem(FILTER_URL_DOMAINS));
 chrome.runtime.onInstalled.addListener(clearCurrentHistory);
 chrome.runtime.onStartup.addListener(clearCurrentHistory);
