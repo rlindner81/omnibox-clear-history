@@ -1,3 +1,4 @@
+// https://developer.chrome.com/docs/extensions/reference/api/history
 "use strict";
 
 const FILTER_URL_DOMAINS = [
@@ -8,7 +9,8 @@ const FILTER_URL_DOMAINS = [
 const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 
 const clearHistoryItem = (domains) => async (item) => {
-  if (!domains.some((domain) => item.url.contains(domain))) {
+  const urlDomain = item.url.match(/\w+\.\w+(?=[:\/]|$)/i)?.[0]
+  if (!domains.includes(urlDomain)) {
     return;
   }
   console.log("clearing %s", item.url);
