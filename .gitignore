@@ -4,3 +4,5 @@ _metadata/
 dist.crx
 dist.pem
 dist.zip
+
+.antigravitycli/
