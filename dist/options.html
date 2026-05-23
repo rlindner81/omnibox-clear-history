@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Omnibox Clear History Options</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main class="container">
+      <div class="settings-group">
+        <label for="domains" class="settings-label">
+          <span>Filter Domains</span>
+          <span class="label-hint">One domain per line.</span>
+        </label>
+        <textarea
+          id="domains"
+          class="settings-textarea"
+          placeholder="e.g.&#10;google.com&#10;youtube.com"
+          spellcheck="false"
+          rows="8"
+        ></textarea>
+      </div>
+
+      <div class="actions">
+        <button id="save" class="btn btn-primary">Save</button>
+        <button id="reset" class="btn btn-secondary">Reset</button>
+      </div>
+
+      <footer class="footer">
+        <div id="status" class="status-alert hidden" role="alert"></div>
+      </footer>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>
