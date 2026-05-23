@@ -4,7 +4,11 @@
   "name": "Omnibox Clear History",
   "description": "Clear Omnibox Google search history suggestions",
   "version": "1.2",
-  "permissions": ["history"],
+  "permissions": ["history", "storage"],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
   "background": {
     "service_worker": "clear-history.js"
   },
