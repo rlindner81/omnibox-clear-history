@@ -52,6 +52,12 @@ chrome.history.onVisited.addListener(async (item) => {
   await clearHistoryItem(item);
 });
 
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "keepAlive") {
+    console.log("Service worker kept alive at:", new Date().toISOString());
+  }
+});
+
 chrome.runtime.onInstalled.addListener(async () => {
   chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
   await loadActiveDomains();
