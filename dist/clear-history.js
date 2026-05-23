@@ -2,7 +2,7 @@
 "use strict";
 
 const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
-const DEFAULT_DOMAINS = ["google.com"];
+const DEFAULT_DOMAINS = ["www.google.com"];
 
 let activeDomains = [...DEFAULT_DOMAINS];
 
