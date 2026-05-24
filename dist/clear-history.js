@@ -65,6 +65,9 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
+// NOTE: chrome needs a handler here to not pause the worker
+chrome.alarms.onAlarm.addListener(() => {});
+
 chrome.runtime.onInstalled.addListener(bootstrap);
 
 chrome.runtime.onStartup.addListener(bootstrap);
