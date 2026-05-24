@@ -19,7 +19,11 @@ const loadActiveDomains = async () => {
 
 const clearHistoryItem = async (item) => {
   try {
-    let { hostname } = new URL(item.url);
+    let { hostname, pathname, search } = new URL(item.url);
+    // NOTE: ignore root URL
+    if (pathname === "/" && search === "") {
+      return;
+    }
     const target = hostname.replace(/^www\./, "");
     if (!activeDomains.includes(target)) {
       return;
@@ -57,13 +61,7 @@ chrome.history.onVisited.addListener(clearHistoryItem);
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === "sync" && changes.domains) {
     activeDomains = changes.domains.newValue ?? [...DEFAULT_DOMAINS];
-    console.log("Service worker active domains updated:", activeDomains);
-  }
-});
-
-chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === "keepAlive") {
-    console.log("Service worker kept alive at:", new Date().toISOString());
+    console.log("Active domains updated:", activeDomains);
   }
 });
 
