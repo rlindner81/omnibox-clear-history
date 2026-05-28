@@ -8,6 +8,7 @@ const resetButton = document.getElementById("reset");
 const statusDiv = document.getElementById("status");
 
 let statusTimeout;
+let resetConfirmTimeout;
 
 const showStatus = (message, type = "success") => {
   clearTimeout(statusTimeout);
@@ -46,7 +47,7 @@ const saveSettings = async () => {
     await chrome.storage.sync.set({ domains });
     // Update textarea in case some entries were filtered out
     domainsTextarea.value = domains.join("\n");
-    showStatus("Saved!");
+    showStatus("Domains saved");
   } catch (error) {
     console.error("Failed to save settings:", error);
     showStatus("Save failed", "error");
@@ -55,15 +56,28 @@ const saveSettings = async () => {
 
 // Reset settings to default
 const resetSettings = async () => {
-  if (confirm("Reset to default domains?")) {
-    try {
-      await chrome.storage.sync.set({ domains: DEFAULT_DOMAINS });
-      domainsTextarea.value = DEFAULT_DOMAINS.join("\n");
-      showStatus("Reset!");
-    } catch (error) {
-      console.error("Failed to reset settings:", error);
-      showStatus("Reset failed", "error");
-    }
+  if (!resetButton.classList.contains("pending-confirm")) {
+    resetButton.textContent = "Confirm?";
+    resetButton.classList.add("pending-confirm");
+    resetConfirmTimeout = setTimeout(() => {
+      resetButton.textContent = "Reset";
+      resetButton.classList.remove("pending-confirm");
+      showStatus("Reset canceled", "error");
+    }, 2000);
+    return;
+  }
+
+  clearTimeout(resetConfirmTimeout);
+  resetButton.textContent = "Reset";
+  resetButton.classList.remove("pending-confirm");
+
+  try {
+    await chrome.storage.sync.set({ domains: DEFAULT_DOMAINS });
+    domainsTextarea.value = DEFAULT_DOMAINS.join("\n");
+    showStatus("Reset confirmed");
+  } catch (error) {
+    console.error("Failed to reset settings:", error);
+    showStatus("Reset failed", "error");
   }
 };
 

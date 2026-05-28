@@ -71,6 +71,13 @@ textarea:focus {
 .btn-primary:hover {
   background: #4f46e5;
 }
+.btn.pending-confirm {
+  background: #b45309;
+  border-color: transparent;
+}
+.btn.pending-confirm:hover {
+  background: #92400e;
+}
 .footer {
   text-align: center;
   font-size: 0.8rem;
