@@ -4,7 +4,7 @@
 const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 const DEFAULT_DOMAINS = ["google.com"];
 
-// NOTE: worker can be suspended and woken up arbitrarily, so we need to always get domains first
+let activeDomainsPromise = Promise.resolve(DEFAULT_DOMAINS);
 
 const getActiveDomains = async () => {
   try {
@@ -17,8 +17,6 @@ const getActiveDomains = async () => {
     return DEFAULT_DOMAINS;
   }
 };
-
-let activeDomainsPromise = getActiveDomains();
 
 const clearHistoryItem = async (item) => {
   try {
@@ -39,23 +37,27 @@ const clearHistoryItem = async (item) => {
   }
 };
 
-const clearCurrentHistory = async () => {
-  chrome.history.search(
-    {
-      text: "",
-      startTime: Date.now() - 14 * MILLIS_PER_DAY,
-      maxResults: 5000,
-    },
-    async (items) => {
-      await Promise.all(items.map(clearHistoryItem));
-    },
-  );
-};
+const clearCurrentHistory = () =>
+  new Promise((resolve) => {
+    chrome.history.search(
+      {
+        text: "",
+        startTime: Date.now() - 14 * MILLIS_PER_DAY,
+        maxResults: 5000,
+      },
+      async (items) => {
+        await Promise.all(items.map(clearHistoryItem));
+        resolve();
+      },
+    );
+  });
 
-const bootstrap = async () => {
+// NOTE: worker can be suspended and woken up arbitrarily, and there is no general wake up hook so we always bootstrap
+(async () => {
   await chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
+  activeDomainsPromise = getActiveDomains();
   await clearCurrentHistory();
-};
+})();
 
 // Event Listeners
 
@@ -75,7 +77,3 @@ chrome.action.onClicked.addListener(async () => {
 
 // NOTE: chrome needs a handler here to not pause the worker
 chrome.alarms.onAlarm.addListener(() => {});
-
-chrome.runtime.onInstalled.addListener(bootstrap);
-
-chrome.runtime.onStartup.addListener(bootstrap);
