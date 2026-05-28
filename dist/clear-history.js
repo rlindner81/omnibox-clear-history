@@ -61,10 +61,11 @@ const bootstrap = async () => {
 
 chrome.history.onVisited.addListener(clearHistoryItem);
 
-chrome.storage.onChanged.addListener((changes, areaName) => {
+chrome.storage.onChanged.addListener(async (changes, areaName) => {
   if (areaName === "sync" && changes.domains?.newValue) {
     activeDomainsPromise = Promise.resolve(changes.domains.newValue);
     console.log("Active domains updated:", changes.domains.newValue);
+    await clearCurrentHistory();
   }
 });
 
