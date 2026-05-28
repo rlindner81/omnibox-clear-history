@@ -3,8 +3,9 @@
 
 const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 const DEFAULT_DOMAINS = ["google.com"];
+const FALLBACK_DOMAINS = [];
 
-let activeDomainsPromise = Promise.resolve(DEFAULT_DOMAINS);
+let activeDomainsPromise = Promise.resolve(FALLBACK_DOMAINS);
 
 const getActiveDomains = async () => {
   try {
@@ -14,7 +15,7 @@ const getActiveDomains = async () => {
     return domains;
   } catch (error) {
     console.error("Failed to get active domains from storage:", error);
-    return DEFAULT_DOMAINS;
+    return FALLBACK_DOMAINS;
   }
 };
 
