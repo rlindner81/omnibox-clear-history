@@ -35,19 +35,21 @@ const loadSettings = async () => {
 // Save settings to storage
 const saveSettings = async () => {
   const rawText = domainsTextarea.value || "";
-  const domains = rawText
+  const entries = rawText
     .split("\n")
     .map((d) => d.trim().toLowerCase())
-    .filter((d) => {
-      // Basic domain validation: non-empty, contains at least one dot, doesn't contain spaces
-      return d.length > 0 && d.includes(".") && !d.includes(" ");
-    });
+    .filter((d) => d.length > 0);
+  const domains = entries.filter((d) => d.includes(".") && !d.includes(" "));
+  const removed = entries.length - domains.length;
 
   try {
     await chrome.storage.sync.set({ domains });
-    // Update textarea in case some entries were filtered out
     domainsTextarea.value = domains.join("\n");
-    showStatus("Domains saved");
+    if (removed > 0) {
+      showStatus(`Domains saved (${removed} invalid removed)`, "warning");
+    } else {
+      showStatus("Domains saved");
+    }
   } catch (error) {
     console.error("Failed to save settings:", error);
     showStatus("Save failed", "error");

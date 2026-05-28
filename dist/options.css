@@ -81,8 +81,16 @@ textarea:focus {
 .footer {
   text-align: center;
   font-size: 0.8rem;
-  color: #22c55e;
   min-height: 1.5rem;
+}
+.status-alert {
+  color: #22c55e;
+}
+.status-alert.warning {
+  color: #f59e0b;
+}
+.status-alert.error {
+  color: #f87171;
 }
 .hidden {
   display: none;
