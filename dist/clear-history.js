@@ -65,6 +65,10 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
+chrome.action.onClicked.addListener(async () => {
+  await chrome.runtime.openOptionsPage();
+});
+
 // NOTE: chrome needs a handler here to not pause the worker
 chrome.alarms.onAlarm.addListener(() => {});
 

@@ -5,6 +5,7 @@
   "description": "Clear Omnibox Google search history suggestions",
   "version": "1.5",
   "permissions": ["history", "storage", "alarms"],
+  "action": {},
   "options_ui": {
     "page": "options.html",
     "open_in_tab": false
