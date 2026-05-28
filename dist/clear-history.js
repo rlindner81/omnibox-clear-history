@@ -4,18 +4,21 @@
 const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 const DEFAULT_DOMAINS = ["google.com"];
 
-let activeDomains = [...DEFAULT_DOMAINS];
+// NOTE: worker can be suspended and woken up arbitrarily, so we need to always get domains first
 
-const loadActiveDomains = async () => {
+const getActiveDomains = async () => {
   try {
-    const result = await chrome.storage.sync.get("domains");
-    if (result.domains) {
-      activeDomains = result.domains;
-    }
+    const { domains } = await chrome.storage.sync.get({
+      domains: DEFAULT_DOMAINS,
+    });
+    return domains;
   } catch (error) {
-    console.error("Failed to load active domains from storage:", error);
+    console.error("Failed to get active domains from storage:", error);
+    return DEFAULT_DOMAINS;
   }
 };
+
+let activeDomainsPromise = getActiveDomains();
 
 const clearHistoryItem = async (item) => {
   try {
@@ -25,6 +28,7 @@ const clearHistoryItem = async (item) => {
       return;
     }
     const target = hostname.replace(/^www\./, "");
+    const activeDomains = await activeDomainsPromise;
     if (!activeDomains.includes(target)) {
       return;
     }
@@ -50,7 +54,6 @@ const clearCurrentHistory = async () => {
 
 const bootstrap = async () => {
   await chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
-  await loadActiveDomains();
   await clearCurrentHistory();
 };
 
@@ -59,9 +62,9 @@ const bootstrap = async () => {
 chrome.history.onVisited.addListener(clearHistoryItem);
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName === "sync" && changes.domains) {
-    activeDomains = changes.domains.newValue ?? [...DEFAULT_DOMAINS];
-    console.log("Active domains updated:", activeDomains);
+  if (areaName === "sync" && changes.domains?.newValue) {
+    activeDomainsPromise = Promise.resolve(changes.domains.newValue);
+    console.log("Active domains updated:", changes.domains.newValue);
   }
 });
 
