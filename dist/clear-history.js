@@ -55,7 +55,6 @@ const clearCurrentHistory = () =>
 
 // NOTE: worker can be suspended and woken up arbitrarily, and there is no general wake up hook so we always bootstrap
 (async () => {
-  await chrome.alarms.create("keepAlive", { periodInMinutes: 0.5 });
   activeDomainsPromise = getActiveDomains();
   await clearCurrentHistory();
 })();
@@ -75,6 +74,3 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
 chrome.action.onClicked.addListener(async () => {
   await chrome.runtime.openOptionsPage();
 });
-
-// NOTE: chrome needs a handler here to not pause the worker
-chrome.alarms.onAlarm.addListener(() => {});
