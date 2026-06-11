@@ -3,7 +3,7 @@
   "homepage_url": "https://github.com/rlindner81/omnibox-clear-history",
   "name": "Omnibox Clear History",
   "description": "Clear Omnibox Google search history suggestions",
-  "version": "1.6",
+  "version": "1.7",
   "permissions": ["history", "storage"],
   "action": {},
   "options_ui": {
