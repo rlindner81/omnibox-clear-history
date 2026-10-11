@@ -19,16 +19,23 @@ const getActiveDomains = async () => {
   }
 };
 
+const matchesDomain = (hostname, pattern) => {
+  if (pattern.startsWith("*.")) {
+    return hostname.endsWith("." + pattern.slice(2));
+  }
+  return hostname.replace(/^www\./, "") === pattern;
+};
+
 const clearHistoryItem = async (item) => {
   try {
     let { hostname, pathname, search } = new URL(item.url);
+    const [basedomain] = /\w+\.\w+$/gi.exec(hostname) ?? [];
     // NOTE: ignore root URL
-    if (pathname === "/" && search === "") {
+    if (pathname === "/" && search === "" && basedomain === hostname.replace(/^www\./, "")) {
       return;
     }
-    const target = hostname.replace(/^www\./, "");
     const activeDomains = await activeDomainsPromise;
-    if (!activeDomains.includes(target)) {
+    if (!activeDomains.some((pattern) => matchesDomain(hostname, pattern))) {
       return;
     }
     console.log("clearing %s", item.url);
