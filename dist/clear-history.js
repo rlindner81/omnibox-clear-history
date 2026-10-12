@@ -1,6 +1,8 @@
 // https://developer.chrome.com/docs/extensions/reference/api/history
 "use strict";
 
+const CLEAR_HISTORY_DAYS = 14;
+const HISTORY_CHUNK_SIZE = 1000;
 const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 const DEFAULT_DOMAINS = ["google.com"];
 const FALLBACK_DOMAINS = [];
@@ -58,20 +60,37 @@ const clearHistoryItem = async (item) => {
   }
 };
 
-const clearCurrentHistory = () =>
-  new Promise((resolve) => {
-    chrome.history.search(
-      {
-        text: "",
-        startTime: Date.now() - 14 * MILLIS_PER_DAY,
-        maxResults: 5000,
-      },
-      async (items) => {
-        await Promise.all(items.map(clearHistoryItem));
-        resolve();
-      },
-    );
-  });
+const collectHistory = async (startTime) => {
+  const result = {};
+  let endTime = Date.now();
+  while (true) {
+    const items = await chrome.history.search({
+      text: "",
+      startTime,
+      endTime,
+      maxResults: HISTORY_CHUNK_SIZE,
+    });
+
+    for (const item of items) {
+      result[item.id] = item;
+    }
+    if (items.length < HISTORY_CHUNK_SIZE) {
+      break;
+    }
+    endTime = items[items.length - 1].lastVisitTime;
+  }
+  return Object.values(result);
+};
+
+const clearCurrentHistory = async () => {
+  const items = await collectHistory(
+    Date.now() - CLEAR_HISTORY_DAYS * MILLIS_PER_DAY,
+  );
+  // we could process some fixed chunk in parallel here
+  for (const item of items) {
+    await clearHistoryItem(item);
+  }
+};
 
 // NOTE: worker can be suspended and woken up arbitrarily, and there is no general wake up hook so we always bootstrap
 (async () => {
