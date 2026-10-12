@@ -31,7 +31,11 @@ const clearHistoryItem = async (item) => {
     let { hostname, pathname, search } = new URL(item.url);
     const [basedomain] = /\w+\.\w+$/gi.exec(hostname) ?? [];
     // NOTE: ignore root URL
-    if (pathname === "/" && search === "" && basedomain === hostname.replace(/^www\./, "")) {
+    if (
+      pathname === "/" &&
+      search === "" &&
+      basedomain === hostname.replace(/^www\./, "")
+    ) {
       return;
     }
     const activeDomains = await activeDomainsPromise;

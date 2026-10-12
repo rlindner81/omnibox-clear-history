@@ -26,6 +26,7 @@ All extension source is in `dist/`:
 - **`manifest.json`** — MV3 manifest. Declares `history` and `storage` permissions.
 
 Key behaviors encoded in the service worker:
+
 - Root URLs (`pathname === "/"` with no query string) are intentionally preserved.
 - `www.` is stripped before domain comparison so `www.google.com` matches `google.com`.
 - Invalid URLs are silently ignored.

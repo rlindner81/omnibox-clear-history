@@ -23,7 +23,9 @@ const showStatus = (message, type = "success") => {
 // Load settings from storage
 const loadSettings = async () => {
   try {
-    const { domains } = await chrome.storage.sync.get({ domains: DEFAULT_DOMAINS });
+    const { domains } = await chrome.storage.sync.get({
+      domains: DEFAULT_DOMAINS,
+    });
     domainsTextarea.value = domains.join("\n");
   } catch (error) {
     console.error("Failed to load settings:", error);
