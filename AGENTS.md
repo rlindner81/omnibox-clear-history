@@ -21,12 +21,18 @@ No build step — source files live directly in `dist/` and are edited there.
 
 All extension source is in `dist/`:
 
-- **`clear-history.js`** — service worker (background script). Registers `onVisited` to delete URLs matching active domains in real time, and runs a retroactive sweep of the last 14 days on startup. Loads domain config from `chrome.storage.sync` and listens for changes.
-- **`options.js`** + **`options.html`** + **`options.css`** — options UI (inline popup, not a tab). Reads/writes the `domains` key in `chrome.storage.sync`. Domains are stored as a lowercase array of hostnames (no `www.` prefix); the service worker strips `www.` when matching.
+- **`clear-history.js`** — service worker (background script). Deletes history entries for active domains via `onVisited` in real time, plus retroactive sweeps (see below). Loads domain config from `chrome.storage.sync` and listens for changes.
+- **`options.js`** + **`options.html`** + **`options.css`** — options UI (inline popup, not a tab). Reads/writes the `domains` key in `chrome.storage.sync` as a lowercase array of hostnames or `*.` wildcard patterns. Entries without a `.` or containing spaces are dropped on save; no further normalization happens there.
 - **`manifest.json`** — MV3 manifest. Declares `history` and `storage` permissions.
 
 Key behaviors encoded in the service worker:
 
+- Sweeps go through `clearCurrentHistory(days)`, which is queued so sweeps never run concurrently:
+  - quick sweep (`QUICK_SWEEP_DAYS`, 1 day) on every worker wake-up, since MV3 has no general wake-up hook;
+  - full sweep (`FULL_SWEEP_DAYS`, 365 days) on `runtime.onInstalled`, `runtime.onStartup`, and domain changes.
+- Callers pass the day constant directly to `clearCurrentHistory`; don't add thin `fullSweep()`/`quickSweep()` wrappers.
 - Root URLs (`pathname === "/"` with no query string) are intentionally preserved.
-- `www.` is stripped before domain comparison so `www.google.com` matches `google.com`.
+- `www.` is stripped from both hostnames and patterns before matching, so `www.google.com` matches `google.com`.
+- `*.example.com` matches `example.com` and all its subdomains; plain entries match the exact hostname only.
+- Removing the `domains` key counts as a change: the worker falls back to `DEFAULT_DOMAINS` and runs a full sweep.
 - Invalid URLs are silently ignored.
