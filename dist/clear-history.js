@@ -1,7 +1,7 @@
 // https://developer.chrome.com/docs/extensions/reference/api/history
 "use strict";
 
-const CLEAR_HISTORY_DAYS = 14;
+const CLEAR_HISTORY_DAYS = 365;
 const HISTORY_CHUNK_SIZE = 1000;
 const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 const DEFAULT_DOMAINS = ["google.com"];
