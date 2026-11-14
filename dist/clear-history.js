@@ -6,8 +6,19 @@ const HISTORY_CHUNK_SIZE = 1000;
 const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 const DEFAULT_DOMAINS = ["google.com"];
 const FALLBACK_DOMAINS = [];
+const CHAIN = Symbol("chain");
 
 let activeDomainsPromise = Promise.resolve(FALLBACK_DOMAINS);
+
+const makeExclusiveQueueing = (cb) => {
+  const queueingCb = async (...args) => {
+    const chain = queueingCb[CHAIN] ?? Promise.resolve();
+    const currentPromise = chain.then(() => cb(...args));
+    queueingCb[CHAIN] = currentPromise.catch(() => {});
+    return await currentPromise;
+  };
+  return queueingCb;
+};
 
 const getActiveDomains = async () => {
   try {
@@ -82,7 +93,7 @@ const collectHistory = async (startTime) => {
   return Object.values(result);
 };
 
-const clearCurrentHistory = async () => {
+const clearCurrentHistory = makeExclusiveQueueing(async () => {
   const items = await collectHistory(
     Date.now() - CLEAR_HISTORY_DAYS * MILLIS_PER_DAY,
   );
@@ -90,7 +101,7 @@ const clearCurrentHistory = async () => {
   for (const item of items) {
     await clearHistoryItem(item);
   }
-};
+});
 
 // NOTE: worker can be suspended and woken up arbitrarily, and there is no general wake up hook so we always bootstrap
 (async () => {
