@@ -20,12 +20,15 @@ const makeExclusiveQueueing = (cb) => {
   return queueingCb;
 };
 
+// NOTE: optional "*." prefix is kept, so this works for hostnames and patterns
+const stripWww = (value) => value.replace(/^(\*\.)?www\./, "$1");
+
 const getActiveDomains = async () => {
   try {
     const { domains } = await chrome.storage.sync.get({
       domains: DEFAULT_DOMAINS,
     });
-    return domains;
+    return domains.map(stripWww);
   } catch (error) {
     console.error("Failed to get active domains from storage:", error);
     return FALLBACK_DOMAINS;
@@ -50,7 +53,7 @@ const clearHistoryItem = async (item) => {
     if (pathname === "/" && search === "") {
       return;
     }
-    const normalizedHostname = hostname.replace(/^www\./, "");
+    const normalizedHostname = stripWww(hostname);
     const activeDomains = await activeDomainsPromise;
     if (
       !activeDomains.some((pattern) =>
@@ -110,7 +113,7 @@ chrome.history.onVisited.addListener(clearHistoryItem);
 
 chrome.storage.onChanged.addListener(async (changes, areaName) => {
   if (areaName === "sync" && changes.domains?.newValue) {
-    activeDomainsPromise = Promise.resolve(changes.domains.newValue);
+    activeDomainsPromise = getActiveDomains();
     console.log("Active domains updated:", changes.domains.newValue);
     await clearCurrentHistory();
   }
