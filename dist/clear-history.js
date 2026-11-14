@@ -125,7 +125,10 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
   // NOTE: on key removal, domains is in changes and newValue is undefined, getActiveDomains falls back to defaults
   if (areaName === "sync" && "domains" in changes) {
     activeDomainsPromise = getActiveDomains();
-    console.log("Active domains updated:", changes.domains.newValue ?? "using defaults");
+    console.log(
+      "Active domains updated:",
+      changes.domains.newValue ?? "using defaults",
+    );
     await clearCurrentHistory(FULL_SWEEP_DAYS);
   }
 });
