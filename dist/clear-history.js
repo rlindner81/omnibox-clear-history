@@ -80,13 +80,16 @@ const collectHistory = async (startTime) => {
       maxResults: HISTORY_CHUNK_SIZE,
     });
 
+    let hasNew = false;
     for (const item of items) {
+      hasNew ||= !(item.id in result);
       result[item.id] = item;
     }
-    if (items.length < HISTORY_CHUNK_SIZE) {
+    if (items.length < HISTORY_CHUNK_SIZE || !hasNew) {
       break;
     }
-    endTime = items[items.length - 1].lastVisitTime;
+    // NOTE: endTime is exclusive, overlap by 1ms so entries sharing the boundary timestamp are not skipped
+    endTime = items[items.length - 1].lastVisitTime + 1;
   }
   return Object.values(result);
 };
