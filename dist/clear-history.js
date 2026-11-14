@@ -106,12 +106,18 @@ const clearCurrentHistory = makeExclusiveQueueing(async (days) => {
 // NOTE: worker can be suspended and woken up arbitrarily, and there is no general wake up hook so we always bootstrap
 (async () => {
   activeDomainsPromise = getActiveDomains();
-  await clearRecentHistory(QUICK_SWEEP_DAYS);
+  await clearCurrentHistory(QUICK_SWEEP_DAYS);
 })();
 
 // Event Listeners
 
-chrome.runtime.onInstalled.addListener(async () => await clearRecentHistory(FULL_SWEEP_DAYS));
+chrome.runtime.onInstalled.addListener(
+  async () => await clearCurrentHistory(FULL_SWEEP_DAYS),
+);
+
+chrome.runtime.onStartup.addListener(
+  async () => await clearCurrentHistory(FULL_SWEEP_DAYS),
+);
 
 chrome.history.onVisited.addListener(clearHistoryItem);
 
@@ -119,7 +125,7 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
   if (areaName === "sync" && changes.domains?.newValue) {
     activeDomainsPromise = getActiveDomains();
     console.log("Active domains updated:", changes.domains.newValue);
-    await clearRecentHistory(FULL_SWEEP_DAYS);
+    await clearCurrentHistory(FULL_SWEEP_DAYS);
   }
 });
 
