@@ -41,9 +41,9 @@ const matchesDomain = (pattern, normalizedHostname, isRoot) => {
 };
 
 const clearHistoryItem = async (item) => {
-  let { hostname, pathname, search } = new URL(item.url);
-  const normalizedHostname = hostname.replace(/^www\./, "");
   try {
+    const { hostname, pathname, search } = new URL(item.url);
+    const normalizedHostname = hostname.replace(/^www\./, "");
     const isRoot = pathname === "/" && search === "";
     const activeDomains = await activeDomainsPromise;
     if (
