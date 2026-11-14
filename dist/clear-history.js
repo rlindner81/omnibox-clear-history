@@ -32,21 +32,13 @@ const getActiveDomains = async () => {
   }
 };
 
-const matchesDomain = (pattern, normalizedHostname, isRoot) => {
+const matchesDomain = (pattern, normalizedHostname) => {
   if (pattern.startsWith("*.")) {
     const patternHostname = pattern.slice(2);
-    // NOTE: keep history entry for root patternHostname
-    if (isRoot && normalizedHostname === patternHostname) {
-      return false;
-    }
     return (
       normalizedHostname === patternHostname ||
       normalizedHostname.endsWith(`.${patternHostname}`)
     );
-  }
-  // NOTE: keep history entry for root patternHostname
-  if (isRoot && normalizedHostname === pattern) {
-    return false;
   }
   return normalizedHostname === pattern;
 };
@@ -54,12 +46,15 @@ const matchesDomain = (pattern, normalizedHostname, isRoot) => {
 const clearHistoryItem = async (item) => {
   try {
     const { hostname, pathname, search } = new URL(item.url);
+    // NOTE: always keep history entries for root URLs
+    if (pathname === "/" && search === "") {
+      return;
+    }
     const normalizedHostname = hostname.replace(/^www\./, "");
-    const isRoot = pathname === "/" && search === "";
     const activeDomains = await activeDomainsPromise;
     if (
       !activeDomains.some((pattern) =>
-        matchesDomain(pattern, normalizedHostname, isRoot),
+        matchesDomain(pattern, normalizedHostname),
       )
     ) {
       return;
