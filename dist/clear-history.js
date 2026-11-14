@@ -1,7 +1,8 @@
 // https://developer.chrome.com/docs/extensions/reference/api/history
 "use strict";
 
-const CLEAR_HISTORY_DAYS = 365;
+const FULL_SWEEP_DAYS = 365;
+const QUICK_SWEEP_DAYS = 1;
 const HISTORY_CHUNK_SIZE = 1000;
 const MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 const DEFAULT_DOMAINS = ["google.com"];
@@ -94,10 +95,8 @@ const collectHistory = async (startTime) => {
   return Object.values(result);
 };
 
-const clearCurrentHistory = makeExclusiveQueueing(async () => {
-  const items = await collectHistory(
-    Date.now() - CLEAR_HISTORY_DAYS * MILLIS_PER_DAY,
-  );
+const clearCurrentHistory = makeExclusiveQueueing(async (days) => {
+  const items = await collectHistory(Date.now() - days * MILLIS_PER_DAY);
   // we could process some fixed chunk in parallel here
   for (const item of items) {
     await clearHistoryItem(item);
@@ -107,10 +106,12 @@ const clearCurrentHistory = makeExclusiveQueueing(async () => {
 // NOTE: worker can be suspended and woken up arbitrarily, and there is no general wake up hook so we always bootstrap
 (async () => {
   activeDomainsPromise = getActiveDomains();
-  await clearCurrentHistory();
+  await clearRecentHistory(QUICK_SWEEP_DAYS);
 })();
 
 // Event Listeners
+
+chrome.runtime.onInstalled.addListener(async () => await clearRecentHistory(FULL_SWEEP_DAYS));
 
 chrome.history.onVisited.addListener(clearHistoryItem);
 
@@ -118,7 +119,7 @@ chrome.storage.onChanged.addListener(async (changes, areaName) => {
   if (areaName === "sync" && changes.domains?.newValue) {
     activeDomainsPromise = getActiveDomains();
     console.log("Active domains updated:", changes.domains.newValue);
-    await clearCurrentHistory();
+    await clearRecentHistory(FULL_SWEEP_DAYS);
   }
 });
 
